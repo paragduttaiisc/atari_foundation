@@ -13,6 +13,7 @@ class BasePolicy(nn.Module):
         super(BasePolicy, self).__init__()
         self.name = None
         self.model = None
+        self.device = None
 
     def forward(
             self,
@@ -43,8 +44,14 @@ class BasePolicy(nn.Module):
             raise NotImplementedError(
                 "ViT model is not implemented in this base policy.")
         else:
-            raise NotImplementedError(
-                f"Model type {self.name} is not implemented.")
+            raise ValueError(
+                f"Invalid model type: {self.name}")
+        # check model is initialized
+        if self.model is None:
+            raise ValueError("Model is not initialized. Please check the policy.")
+        # send data to device
+        if self.device is not None:
+            x = x.to(self.device)
         # forward pass
         if requires_grad:
             return self.model(x)

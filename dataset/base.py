@@ -10,9 +10,9 @@ class AtariBase(Dataset):
     def __init__(
             self,
             path: str,
-            part: Optional[int] = 1,
-            subset: Optional[str] = 'all', # 'initial', 'final', or 'all'
-            buffer_len: Optional[int] = int(1e6),
+            part: int = 1,
+            subset: str = 'all',  # 'initial', 'final', or 'all'
+            buffer_len: int = int(1e6),
     ) -> None:
         """
         Loads Atari game data from a specified path.

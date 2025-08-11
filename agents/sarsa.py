@@ -1,7 +1,7 @@
 from agents import BaseAgent
 
 
-class SarsaAgent(BaseAgent):
+class SARSAAgent(BaseAgent):
     """
     SARSA Agent class that inherits from BaseAgent. Implements the SARSA
     (State-Action-Reward-State-Action) algorithm on offline data for policy

@@ -7,6 +7,3 @@ class ViTPolicy(BasePolicy):
         super().__init__()
         self.name = 'ViT'
         self.model = None
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError

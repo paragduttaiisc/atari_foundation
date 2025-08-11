@@ -13,11 +13,11 @@ class AtariTemporalDifference(AtariBase):
     def __init__(
             self,
             path: str,
-            part: Optional[int] = 1,
-            subset: Optional[str] = 'all',
-            buffer_len: Optional[int] = int(1e6),
-            load_n_obs: Optional[bool] = True,
-            load_n_acs: Optional[bool] = False
+            part: int = 1,
+            subset: str = 'all',
+            buffer_len: int = int(1e6),
+            load_n_obs: bool = True,
+            load_n_acs: bool = False
     ) -> None:
         """
         Loads Atari game data for temporal difference learning.
@@ -44,7 +44,7 @@ class AtariTemporalDifference(AtariBase):
         self.load_n_obs = load_n_obs
         self.load_n_acs = load_n_obs and load_n_acs
         self.valid_idxs = self.__get_valid_idxs(subset)
-
+        
     def __get_valid_idxs(self, subset: str) -> np.ndarray:
         """
         Get valid indices for the specified subset.
@@ -59,7 +59,7 @@ class AtariTemporalDifference(AtariBase):
         valid_idxs, idx, ptr = [], 0, 0
         for i in range(len(self.obs)):
             for j in range(self.buffer_len):
-                if self.dones[ptr] == idx - 1:
+                if self.dones[ptr] == idx - 1:  # type: ignore
                     valid_idxs = valid_idxs[:-3]
                     ptr += 1
                 valid_idxs.append(idx)
@@ -76,7 +76,7 @@ class AtariTemporalDifference(AtariBase):
         """
         return len(self.valid_idxs)
 
-    def __getitem__(self, i: int) -> tuple:
+    def __getitem__(self, i: int) -> dict:
         """
         Get the ith sample from the dataset.
         :param i:
@@ -91,20 +91,38 @@ class AtariTemporalDifference(AtariBase):
             file_idx = (idx + i) // self.buffer_len
             sample_idx = (idx + i) % self.buffer_len
             ob[i] = self.obs[file_idx][sample_idx]
-        ac = self.acs[idx]
-        rew = self.rews[idx]
-        done = idx == self.dones[np.searchsorted(self.dones, idx)]
+        ac = self.acs[idx]  # type: ignore
+        rew = self.rews[idx]  # type: ignore
+        done = idx == self.dones[np.searchsorted(self.dones, idx)]  # type: ignore
         if not self.load_n_obs:
-            return ob, ac, rew, done
+            return {
+                'obs': ob,
+                'acs': ac,
+                'rews': rew,
+                'dones': done
+            }
         n_ob = np.zeros_like(ob)
         n_ob[:-1] = ob[1:]
         file_idx = min((idx + 4) // self.buffer_len, len(self.obs) - 1)
         sample_idx = (idx + 4) % self.buffer_len
         n_ob[-1] = self.obs[file_idx][sample_idx]
         if self.load_n_acs:
-            n_ac = self.acs[min(idx + 4, len(self.acs) - 1)]
-            return ob, ac, rew, n_ob, n_ac, done
-        return ob, ac, rew, n_ob, done
+            n_ac = self.acs[min(idx + 4, len(self.acs) - 1)]  # type: ignore
+            return {
+                'obs': ob,
+                'acs': ac,
+                'rews': rew,
+                'n_obs': n_ob,
+                'n_acs': n_ac,
+                'dones': done
+            }
+        return {
+            'obs': ob,
+            'acs': ac,
+            'rews': rew,
+            'n_obs': n_ob,
+            'dones': done
+        }
 
 
 if __name__ == '__main__':

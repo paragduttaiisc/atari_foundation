@@ -1,10 +1,11 @@
+import torch
 import torch.nn as nn
 
 from policies import BasePolicy
 
 
 class CNNPolicy(BasePolicy):
-    def __init__(self, action_space: int) -> None:
+    def __init__(self, action_space: int, device: torch.device) -> None:
         """
         Initialize the CNN policy.
         :param action_space:
@@ -12,6 +13,7 @@ class CNNPolicy(BasePolicy):
         """
         super().__init__()
         self.name = 'CNN'
+        self.device = device
         self.model = nn.Sequential(
             nn.Conv2d(4, 32, kernel_size=8, stride=4),  # Input: (B, 4, 84, 84)
             nn.ReLU(),
@@ -24,3 +26,4 @@ class CNNPolicy(BasePolicy):
             nn.ReLU(),
             nn.Linear(512, action_space)  # Output: (B, action_space)
         )
+        self.to(device)

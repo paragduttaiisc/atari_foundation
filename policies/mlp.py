@@ -25,14 +25,3 @@ class MLPPolicy(BasePolicy):
             nn.ReLU(),
             nn.Linear(hidden_dim, action_space)
         )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the MLP policy.
-        :param x:
-            Input observations.
-        :return:
-            Q-values for the actions if Policy is Discrete Else Logits
-        """
-        x = torch.relu(self.fc1(x))
-        return self.fc2(x)
